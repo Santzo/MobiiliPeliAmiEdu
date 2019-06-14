@@ -385,8 +385,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49b350c3355d8b845a5d4d64f665e391, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gridX: 8
-  gridY: 8
+  gridX: 6
+  gridY: 6
   nodeSize: 1
 --- !u!1 &2049070069
 GameObject:
@@ -422,7 +422,7 @@ MonoBehaviour:
     prefab: {fileID: 3263453295739327139, guid: d2932f7f6ee3d0d43a6d8b27aafd617a,
       type: 3}
     _parent: {fileID: 0}
-    size: 100
+    size: 900
 --- !u!4 &2049070071
 Transform:
   m_ObjectHideFlags: 0

@@ -61,14 +61,31 @@ public class PlayerController : MonoBehaviour
             {
                 Node nodeInfo = Grid.ReturnNodeInfo(ray.point);
 
-                if (nodeInfo == null || nextInCombo > 0 && nodeCombo[nextInCombo - 1] == nodeInfo || nextInCombo >= maximumCombo)
+                if (nodeInfo == null || nextInCombo == 1 && nodeCombo[nextInCombo - 1] == nodeInfo || nextInCombo >= maximumCombo)
                     return;
 
-                foreach (Node node in nodeCombo)
+                if (nextInCombo > 1)
                 {
-                    if (nodeInfo == node)
+                    //Debug.Log(nodeInfo.x + " " + nodeCombo[nextInCombo - 1].x + " - " + nodeInfo.y + " " + nodeCombo[nextInCombo - 1].y);
+                    if (nodeInfo == nodeCombo[nextInCombo - 2])
+                    {
+                        nodeCombo[nextInCombo - 1].ActivateNode(false);
+                        nodeCombo[nextInCombo - 1] = null;
+                        nextInCombo--;
+                        lr.positionCount--;
                         return;
+                    }
+                    else
+                    {
+                        foreach (Node node in nodeCombo)
+                        {
+                            if (nodeInfo == node)
+                                return;
+                        }
+                    }
                 }
+
+
 
                 if (nextInCombo > 0)
                 {
@@ -77,6 +94,7 @@ public class PlayerController : MonoBehaviour
                     if (nodeInfo.color != nodeCombo[0].color)
                         return;
                 }
+
                 if (nodeCombo[nextInCombo] == null)
                 {
                     nodeCombo[nextInCombo] = nodeInfo;
