@@ -385,8 +385,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49b350c3355d8b845a5d4d64f665e391, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gridX: 6
-  gridY: 6
+  gridX: 7
+  gridY: 7
   nodeSize: 1
 --- !u!1 &2049070069
 GameObject:

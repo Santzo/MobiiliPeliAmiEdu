@@ -100,15 +100,17 @@ public class Grid : MonoBehaviour
         return grid.nodes[x, y];
     }
 
-    //public static void UpdateField()
-    //{
-    //    for (int x = 0; x < grid.gridX; x++)
-    //    {
-    //        for (int y = 0; y < grid.gridY; y++)
-    //        {
-    //            nodes[x, y]
-    //        }
-    //    }
-    //}
+
+    public static IEnumerator MoveNode(Transform obj, Vector3 targetPos)
+    {
+        float moveSpeed = Random.Range(0.05f, 0.12f);
+        while (obj.transform.position.y != targetPos.y)
+        {
+            obj.transform.position = Vector2.MoveTowards(obj.transform.position, targetPos, moveSpeed);
+            yield return null;
+        }
+        obj.transform.position = targetPos;
+        yield return null;
+    }
 
 }

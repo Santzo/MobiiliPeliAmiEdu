@@ -37,26 +37,54 @@ public class ObjectCreator
 
     public static void ReplaceNodes(List<Node> replacedNodes)
     {
+        List<Node> nodesToMove = new List<Node>();
         replacedNodes = replacedNodes.OrderByDescending(o => o.y).ToList();
+
         foreach (Node node in replacedNodes)
         {
             for (int y = node.y; y < Grid.grid.gridY; y++)
             {
                 if (y < Grid.grid.gridY - 1)
                 {
-                    if (!Grid.grid.nodes[node.x, y + 1].obj.activeSelf)
+                    if (Grid.grid.nodes[node.x, y + 1].active == false)
                     {
-                        Grid.grid.nodes[node.x, y].obj.SetActive(false);
+                        Grid.grid.nodes[node.x, y].active = false;
                         break;
                     }
+
+                    Grid.grid.nodes[node.x, y].obj = Grid.grid.nodes[node.x, y + 1].obj;
                     Grid.grid.nodes[node.x, y].color = Grid.grid.nodes[node.x, y + 1].color;
-                    Grid.grid.nodes[node.x, y].obj.SetActive(true);
+
+                    //if (!nodesToMove.Contains(Grid.grid.nodes[node.x, y]))
+                    //    nodesToMove.Add(Grid.grid.nodes[node.x, y]);
+                    //else
+                    //{
+                    //    nodesToMove.Remove(Grid.grid.nodes[node.x, y]);
+                    //    nodesToMove.Add(Grid.grid.nodes[node.x, y]);
+                    //}
+    
                     Grid.grid.nodes[node.x, y].UpdateColor();
+                    Grid.grid.nodes[node.x, y].active = true;
+                    //Grid.grid.nodes[node.x, y].obj.transform.position = new Vector2(Grid.grid.nodes[node.x, y].xPos, Grid.grid.nodes[node.y, y].yPos);
                 }
                 else
-                    Grid.grid.nodes[node.x, y].obj.SetActive(false);
+                {
+                    Grid.grid.nodes[node.x, y].active = false;
+                }
             }
         }
+        foreach (Node node in Grid.grid.nodes)
+        {
+            if (node.obj.transform.position.y != node.yPos && node.active)
+                nodesToMove.Add(node);
+        }
+
+        foreach (Node node in nodesToMove)
+        {
+            Grid.grid.StartCoroutine(Grid.MoveNode(node.obj.transform, new Vector2(node.xPos, node.yPos)));
+        }
     }
+
+
 
 }
