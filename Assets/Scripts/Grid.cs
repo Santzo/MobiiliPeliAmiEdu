@@ -14,6 +14,8 @@ public class Grid : MonoBehaviour
     public static Vector2 startPos;
     public static Grid grid;
 
+    private Transform centerPoint;
+
     private void Awake()
     {
         grid = this;
@@ -21,8 +23,11 @@ public class Grid : MonoBehaviour
 
     void Start()
     {
+        centerPoint = transform.GetChild(0);
         nodes = new Node[gridX, gridY];
-        startPos = new Vector2(-(gridX * 0.5f * nodeSize), -(gridY * 0.5f * nodeSize));
+        nodeSize += (GameManager.gm.wsW * GameManager.gm.wsW) * 0.01f;
+        if (GameManager.gm.wsW == 6f) nodeSize -= 0.03f;
+        startPos = new Vector2(-(gridX * 0.5f * nodeSize) - Mathf.Abs(centerPoint.position.x), -(gridY * 0.5f * nodeSize) - Mathf.Abs(centerPoint.position.y));
         DrawGrid();
         InitializeField();
     }
@@ -31,8 +36,17 @@ public class Grid : MonoBehaviour
 
     void DrawGrid()
     {
+        GameObject panel = new GameObject();
+        panel.transform.parent = transform;
 
-        for (int x = 0; x <= gridX; x++)
+        SpriteRenderer panelSr = panel.AddComponent<SpriteRenderer>();
+        panelSr.sprite = GameManager.gm.backgroundPanel;
+        panelSr.color = new Color(0.277f, 0.277f, 0.277f, 0.57f);
+
+        panelSr.sortingOrder = 1;
+        panel.transform.localScale = new Vector3(gridX * nodeSize, gridY * nodeSize, 0f);
+        panel.transform.position = new Vector3(startPos.x, startPos.y + gridY * nodeSize, 0f);
+        for (int x = 1; x <= gridX - 1; x++)
         {
             GameObject obj = new GameObject();
             obj.transform.parent = transform;
@@ -42,13 +56,14 @@ public class Grid : MonoBehaviour
 
             lr.SetPosition(0, new Vector2(startPos.x + x * nodeSize, startPos.y));
             lr.SetPosition(1, new Vector2(startPos.x + x * nodeSize, startPos.y + gridY * nodeSize));
-            lr.startWidth = 0.03f;
-            lr.endWidth = 0.03f;
-            lr.startColor = Color.white;
-            lr.endColor = Color.grey;
+            lr.startWidth = 0.025f;
+            lr.endWidth = 0.025f;
+            lr.startColor = new Color(0.57f, 0.33f, 0.16f);
+            lr.endColor = new Color(0.36f, 0.18f, 0.04f);
+            lr.sortingOrder = 2;
 
         }
-        for (int y = 0; y <= gridY; y++)
+        for (int y = 1; y <= gridY - 1; y++)
         {
             GameObject obj = new GameObject();
             obj.transform.parent = transform;
@@ -58,10 +73,11 @@ public class Grid : MonoBehaviour
 
             lr.SetPosition(0, new Vector2(startPos.x, startPos.y + y * nodeSize));
             lr.SetPosition(1, new Vector2(startPos.x + gridX * nodeSize, startPos.y + y * nodeSize));
-            lr.startWidth = 0.03f;
-            lr.endWidth = 0.03f;
-            lr.startColor = Color.white;
-            lr.endColor = Color.grey;
+            lr.startWidth = 0.025f;
+            lr.endWidth = 0.025f;
+            lr.startColor = new Color(0.36f, 0.18f, 0.04f);
+            lr.endColor = new Color(0.57f, 0.33f, 0.16f);
+            lr.sortingOrder = 2;
 
         }
 
@@ -88,14 +104,14 @@ public class Grid : MonoBehaviour
 
     public static Node ReturnNodeInfo(Vector2 pos)
     {
-        float currentX = pos.x / grid.nodeSize;
-        float currentY = pos.y / grid.nodeSize;
+        float currentX = pos.x / grid.nodeSize + Mathf.Abs(grid.centerPoint.position.x);
+        float currentY = pos.y / grid.nodeSize + Mathf.Abs(grid.centerPoint.position.y / grid.nodeSize);
 
         float gridSizeX = grid.gridX / 2f;
         float gridSizeY = grid.gridY / 2f;
 
-        int x = Mathf.FloorToInt(currentX + gridSizeX);
-        int y = Mathf.FloorToInt(currentY + gridSizeY);
+        int x = Mathf.FloorToInt(currentX + gridSizeX );
+        int y = Mathf.FloorToInt(currentY + gridSizeY );
 
         return grid.nodes[x, y];
     }
