@@ -10,8 +10,13 @@ public class GameManager : MonoBehaviour
     [HideInInspector] public float wsW;
     [HideInInspector] public float wsH;
 
-    public static GameManager gm;
+    public static GameManager instance;
     public Sprite backgroundPanel;
+    public Sprite scoreBackground;
+    public Vector2 scorePosition;
+
+    public PlayerController player;
+
     private GameObject background;
 
     private void Awake()
@@ -19,16 +24,17 @@ public class GameManager : MonoBehaviour
         wsH = Camera.main.orthographicSize * 2;
         wsW = wsH / Screen.height * Screen.width;
 
-        if (gm == null)
+        if (instance == null)
         {
-            gm = this;
+            instance = this;
         }
         else
         {
             Destroy(gameObject);
         }
 
-        Debug.Log(wsH + " " + wsW + " " + (wsW / wsH));
+        player = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
+
     }
 
     private void Start()

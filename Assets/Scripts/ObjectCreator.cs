@@ -5,38 +5,10 @@ using UnityEngine;
 
 public class ObjectCreator
 {
-    public static Color CreateColor(int color)
-    {
-        switch (color)
-        {
-            case 1:
-                {
-                    return Color.blue;
-                }
-            case 2:
-                {
-                    return Color.red;
-                }
-            case 3:
-                {
-                    return Color.green;
-                }
-            case 4:
-                {
-                    return Color.yellow;
-                }
-            case 5:
-                {
-                    return Color.magenta;
-                }
-        }
-
-        return Color.white;
-
-    }
 
     public static void ReplaceNodes(List<Node> replacedNodes)
     {
+        CalculateScore(replacedNodes); 
         List<Node> nodesToMove = new List<Node>();
         replacedNodes = replacedNodes.OrderByDescending(o => o.y).ToList();
 
@@ -53,19 +25,11 @@ public class ObjectCreator
                     }
 
                     Grid.grid.nodes[node.x, y].obj = Grid.grid.nodes[node.x, y + 1].obj;
-                    Grid.grid.nodes[node.x, y].color = Grid.grid.nodes[node.x, y + 1].color;
+                    Grid.grid.nodes[node.x, y].name = Grid.grid.nodes[node.x, y + 1].name;
 
-                    //if (!nodesToMove.Contains(Grid.grid.nodes[node.x, y]))
-                    //    nodesToMove.Add(Grid.grid.nodes[node.x, y]);
-                    //else
-                    //{
-                    //    nodesToMove.Remove(Grid.grid.nodes[node.x, y]);
-                    //    nodesToMove.Add(Grid.grid.nodes[node.x, y]);
-                    //}
-    
+                
                     Grid.grid.nodes[node.x, y].UpdateColor();
                     Grid.grid.nodes[node.x, y].active = true;
-                    //Grid.grid.nodes[node.x, y].obj.transform.position = new Vector2(Grid.grid.nodes[node.x, y].xPos, Grid.grid.nodes[node.y, y].yPos);
                 }
                 else
                 {
@@ -73,6 +37,7 @@ public class ObjectCreator
                 }
             }
         }
+
         foreach (Node node in Grid.grid.nodes)
         {
             if (node.obj.transform.position.y != node.yPos && node.active)
@@ -85,6 +50,21 @@ public class ObjectCreator
         }
     }
 
+    public static void CalculateScore(List<Node> replacedNodes)
+    {
+        int combo = replacedNodes.Count;
+        float score = replacedNodes[0].scoreValue;
+        float comboMultiplier = replacedNodes.Count - 1 > replacedNodes[0].comboMultiplier.Length ? replacedNodes[0].comboMultiplier[replacedNodes[0].comboMultiplier.Length - 1] : replacedNodes[0].comboMultiplier[replacedNodes.Count - 2];
+        int addedScore = Mathf.RoundToInt(score * combo * comboMultiplier);
+        CreateScoreText(addedScore, new Vector2(replacedNodes[replacedNodes.Count - 1].xPos, replacedNodes[replacedNodes.Count - 1].yPos));
+        GameManager.instance.player.Score += addedScore;
+    }
+
+    public static void CreateScoreText(int score, Vector2 pos)
+    {
+        GameObject text = ObjectPooler.op.Spawn("ScoreText", pos);
+        text.GetComponent<Score>().text.text = "+" + score;
+    }
 
 
 }

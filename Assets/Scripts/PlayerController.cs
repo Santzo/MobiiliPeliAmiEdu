@@ -11,6 +11,21 @@ public class PlayerController : MonoBehaviour
     private LineRenderer lr;
     List<Node> nodesToReplace = new List<Node>();
 
+    private float score = 0f;
+    public float Score
+    {
+        get
+        {
+            return score;
+        }
+        set
+        {
+            if (score == value)
+                return;
+            score = value;
+            EventManager.OnScoreChange();
+        }
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -31,6 +46,8 @@ public class PlayerController : MonoBehaviour
 
         if (Input.GetMouseButton(0))
             AddPieceToCombo();
+        if (Input.GetKeyDown(KeyCode.Space))
+            Score += 500;
     }
 
     private bool IsNeighborNode(Node node, Node targetNode)
@@ -83,7 +100,7 @@ public class PlayerController : MonoBehaviour
             {
                 if (!IsNeighborNode(nodeCombo[nextInCombo - 1], nodeInfo))
                     return;
-                if (nodeInfo.color != nodeCombo[0].color)
+                if (nodeInfo.name != nodeCombo[0].name)
                     return;
             }
 

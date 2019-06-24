@@ -3,7 +3,8 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - ScoreCounter
   layers:
   - Default
   - TransparentFX
@@ -43,4 +44,7 @@ TagManager:
     locked: 0
   - name: NodeObjects
     uniqueID: 1162002613
+    locked: 0
+  - name: TextObjects
+    uniqueID: 2929300513
     locked: 0

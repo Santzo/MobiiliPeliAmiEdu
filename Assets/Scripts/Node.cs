@@ -4,7 +4,9 @@ using UnityEngine;
 
 public class Node
 {
-    public int color;
+    public string name;
+    public float scoreValue;
+    public float[] comboMultiplier;
     public int x;
     public int y;
     public float xPos;
@@ -12,9 +14,11 @@ public class Node
     public GameObject obj;
     public bool active;
 
-    public Node(int color, int x, int y, float xPos, float yPos, GameObject obj, bool _active = true)
+    public Node(string name, float scoreValue, float[] comboMultiplier, int x, int y, float xPos, float yPos, GameObject obj, bool _active = true)
     {
-        this.color = color;
+        this.name = name;
+        this.scoreValue = scoreValue;
+        this.comboMultiplier = comboMultiplier;
         this.x = x;
         this.y = y;
         this.xPos = xPos;
@@ -35,7 +39,6 @@ public class Node
     public void UpdateColor()
     {
         SpriteRenderer clr = obj.GetComponent<SpriteRenderer>();
-        clr.color = ObjectCreator.CreateColor(color);
     }
 
 }

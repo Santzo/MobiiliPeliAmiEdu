@@ -25,8 +25,8 @@ public class Grid : MonoBehaviour
     {
         centerPoint = transform.GetChild(0);
         nodes = new Node[gridX, gridY];
-        nodeSize += (GameManager.gm.wsW * GameManager.gm.wsW) * 0.01f;
-        if (GameManager.gm.wsW == 6f) nodeSize -= 0.03f;
+        nodeSize += (GameManager.instance.wsW * GameManager.instance.wsW) * 0.01f;
+        if (GameManager.instance.wsW == 6f) nodeSize -= 0.03f;
         startPos = new Vector2(-(gridX * 0.5f * nodeSize) - Mathf.Abs(centerPoint.position.x), -(gridY * 0.5f * nodeSize) - Mathf.Abs(centerPoint.position.y));
         DrawGrid();
         InitializeField();
@@ -36,16 +36,8 @@ public class Grid : MonoBehaviour
 
     void DrawGrid()
     {
-        GameObject panel = new GameObject();
-        panel.transform.parent = transform;
+        CreateGridBackground();
 
-        SpriteRenderer panelSr = panel.AddComponent<SpriteRenderer>();
-        panelSr.sprite = GameManager.gm.backgroundPanel;
-        panelSr.color = new Color(0.277f, 0.277f, 0.277f, 0.57f);
-
-        panelSr.sortingOrder = 1;
-        panel.transform.localScale = new Vector3(gridX * nodeSize, gridY * nodeSize, 0f);
-        panel.transform.position = new Vector3(startPos.x, startPos.y + gridY * nodeSize, 0f);
         for (int x = 1; x <= gridX - 1; x++)
         {
             GameObject obj = new GameObject();
@@ -91,13 +83,20 @@ public class Grid : MonoBehaviour
             {
                 float posX = (x * nodeSize + (nodeSize * 0.5f) - Mathf.Abs(startPos.x));
                 float posY = (y * nodeSize + (nodeSize * 0.5f) - Mathf.Abs(startPos.y));
-                GameObject obj = ObjectPooler.op.Spawn("TestSphere", new Vector2(posX, posY));
+                GameObject obj = ObjectPooler.op.Spawn("GamePiece", new Vector2(posX, posY));
                 obj.transform.localScale = Vector3.one * (nodeSize * 0.8f);
 
-                int color = Random.Range(1, 6);
-                nodes[x, y] = new Node(color, x, y, posX, posY, obj);
+                int piece = Random.Range(0, GamePieceManager.instance.pieces.Length);
+                GamePiece tempPiece = GamePieceManager.instance.pieces[piece].GetComponent<GamePiece>();
+                obj.name = GamePieceManager.instance.pieces[piece].name;
+                obj.GetComponent<SpriteRenderer>().sprite = tempPiece.sprite;
+                obj.GetComponent<SpriteRenderer>().color = tempPiece.color;
+                obj.GetComponent<BoxCollider2D>().size = new Vector2(1.05f, 1.05f);
 
-                obj.transform.GetComponent<SpriteRenderer>().color = ObjectCreator.CreateColor(color);
+
+                nodes[x, y] = new Node(obj.name, tempPiece.scoreValue, tempPiece.comboMultiplier, x, y, posX, posY, obj);
+
+
             }
         }
     }
@@ -129,4 +128,33 @@ public class Grid : MonoBehaviour
         yield return null;
     }
 
+    private void CreateGridBackground()
+    {
+        GameObject panel = new GameObject();
+        panel.transform.parent = transform;
+
+        SpriteRenderer panelSr = panel.AddComponent<SpriteRenderer>();
+        panelSr.sprite = GameManager.instance.backgroundPanel;
+        panelSr.drawMode = SpriteDrawMode.Sliced;
+        panelSr.color = new Color(0.8f, 0.8f, 0.8f, 1f);
+
+        panelSr.sortingOrder = 1;
+        panel.transform.localScale = new Vector3(gridX * nodeSize, gridY * nodeSize, 0f);
+        panel.transform.position = new Vector3(startPos.x, startPos.y + gridY * nodeSize, 0f);
+
+        GameObject scorePanel = new GameObject();
+        scorePanel.transform.parent = panel.transform;
+
+        SpriteRenderer scoreSr = scorePanel.AddComponent<SpriteRenderer>();
+        scoreSr.sprite = GameManager.instance.scoreBackground;
+        scoreSr.drawMode = SpriteDrawMode.Sliced;
+        scoreSr.color = panelSr.color;
+
+        scoreSr.sortingOrder = 2;
+        scoreSr.transform.localScale = new Vector3(1f, 1.25f, 1f);
+        scoreSr.transform.position = new Vector3(startPos.x, startPos.y);
+
+        GameManager.instance.scorePosition = scoreSr.transform.position;
+        GameObject.FindGameObjectWithTag("ScoreCounter").transform.position = GameManager.instance.scorePosition;
+    }
 }
