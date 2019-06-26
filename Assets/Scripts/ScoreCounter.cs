@@ -18,7 +18,7 @@ public class ScoreCounter : MonoBehaviour
     void Start()
     {
         currentScore = Mathf.RoundToInt(GameManager.instance.player.Score);
-        GetComponent<TextMeshPro>().text = Colors.Color("Red") + "Score";
+        //GetComponent<TextMeshPro>().text = Colors.Color("Red") + "Score";
         scoreText.text = Colors.Color("White") + " " + currentScore.ToString("D5");
     }
 

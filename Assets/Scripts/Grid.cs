@@ -136,14 +136,14 @@ public class Grid : MonoBehaviour
         SpriteRenderer panelSr = panel.AddComponent<SpriteRenderer>();
         panelSr.sprite = GameManager.instance.backgroundPanel;
         panelSr.drawMode = SpriteDrawMode.Sliced;
-        panelSr.color = new Color(0.8f, 0.8f, 0.8f, 1f);
+        panelSr.color = new Color(1f, 1F, 1f, 1f);
 
         panelSr.sortingOrder = 1;
         panel.transform.localScale = new Vector3(gridX * nodeSize, gridY * nodeSize, 0f);
         panel.transform.position = new Vector3(startPos.x, startPos.y + gridY * nodeSize, 0f);
 
         GameObject scorePanel = new GameObject();
-        scorePanel.transform.parent = panel.transform;
+        scorePanel.transform.parent = transform;
 
         SpriteRenderer scoreSr = scorePanel.AddComponent<SpriteRenderer>();
         scoreSr.sprite = GameManager.instance.scoreBackground;
@@ -151,10 +151,10 @@ public class Grid : MonoBehaviour
         scoreSr.color = panelSr.color;
 
         scoreSr.sortingOrder = 2;
-        scoreSr.transform.localScale = new Vector3(1f, 1.25f, 1f);
+        scoreSr.transform.localScale = new Vector3(panel.transform.localScale.x * 1.05f, panel.transform.localScale.y * 1.25f, 1f);
         scoreSr.transform.position = new Vector3(startPos.x, startPos.y);
 
-        GameManager.instance.scorePosition = scoreSr.transform.position;
+        GameManager.instance.scorePosition = new Vector2(scoreSr.transform.position.x + (scoreSr.bounds.size.x * 0.65f), scoreSr.transform.position.y - (scoreSr.bounds.size.y * 0.125f));
         GameObject.FindGameObjectWithTag("ScoreCounter").transform.position = GameManager.instance.scorePosition;
     }
 }
