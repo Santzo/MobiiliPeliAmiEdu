@@ -93,12 +93,14 @@ public class Grid : MonoBehaviour
                 obj.name = GamePieceManager.instance.pieces[piece].name;
                 Renderer rend = obj.GetComponent<Renderer>();
                 MeshRenderer mesh = obj.GetComponent<MeshRenderer>();
+                rend.material = coinMaterial;
                 rend.material.SetTexture("_MainTex", tempPiece.sprite.texture);
-                rend.materials[1].mainTexture = tempPiece.sprite.texture;
-                rend.materials[1].SetTextureScale("_MainTex", new Vector2(1.95f, 0.95f));
-                rend.materials[1].SetTextureOffset("_MainTex", new Vector2(-0.97f, 0.02f));
+                Material[] mat = rend.materials;
+                mat[1] = rend.material;
+                rend.materials = mat;
 
-                obj.GetComponent<BoxCollider2D>().size = new Vector2(1.05f, 1.05f);
+                obj.transform.localScale = new Vector3(obj.transform.localScale.x * nodeSize, obj.transform.localScale.y * nodeSize, obj.transform.localScale.z * nodeSize);
+                //obj.GetComponent<BoxCollider2D>().size = new Vector2(1.05f, 1.05f);
 
 
                 nodes[x, y] = new Node(obj.name, tempPiece.scoreValue, tempPiece.comboMultiplier, x, y, posX, posY, obj);
@@ -116,8 +118,8 @@ public class Grid : MonoBehaviour
         float gridSizeX = grid.gridX / 2f;
         float gridSizeY = grid.gridY / 2f;
 
-        int x = Mathf.FloorToInt(currentX + gridSizeX );
-        int y = Mathf.FloorToInt(currentY + gridSizeY );
+        int x = Mathf.FloorToInt(currentX + gridSizeX);
+        int y = Mathf.FloorToInt(currentY + gridSizeY);
 
         return grid.nodes[x, y];
     }
