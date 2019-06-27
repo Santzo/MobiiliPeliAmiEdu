@@ -7,6 +7,7 @@ public class Grid : MonoBehaviour
     [Header("Grid Size")]
     public int gridX;
     public int gridY;
+    public Material coinMaterial;
     [Space]
     public Node[,] nodes;
     public float nodeSize = 1f;
@@ -83,14 +84,20 @@ public class Grid : MonoBehaviour
             {
                 float posX = (x * nodeSize + (nodeSize * 0.5f) - Mathf.Abs(startPos.x));
                 float posY = (y * nodeSize + (nodeSize * 0.5f) - Mathf.Abs(startPos.y));
-                GameObject obj = ObjectPooler.op.Spawn("GamePiece", new Vector2(posX, posY));
+                GameObject obj = ObjectPooler.op.Spawn("GamePiece", new Vector3(posX, posY, -1f));
                 obj.transform.localScale = Vector3.one * (nodeSize * 0.8f);
+                obj.transform.localScale = new Vector3(7.5f, 7.5f, 0.5f);
 
                 int piece = Random.Range(0, GamePieceManager.instance.pieces.Length);
                 GamePiece tempPiece = GamePieceManager.instance.pieces[piece].GetComponent<GamePiece>();
                 obj.name = GamePieceManager.instance.pieces[piece].name;
-                obj.GetComponent<SpriteRenderer>().sprite = tempPiece.sprite;
-                obj.GetComponent<SpriteRenderer>().color = tempPiece.color;
+                Renderer rend = obj.GetComponent<Renderer>();
+                MeshRenderer mesh = obj.GetComponent<MeshRenderer>();
+                rend.material.SetTexture("_MainTex", tempPiece.sprite.texture);
+                rend.materials[1].mainTexture = tempPiece.sprite.texture;
+                rend.materials[1].SetTextureScale("_MainTex", new Vector2(1.95f, 0.95f));
+                rend.materials[1].SetTextureOffset("_MainTex", new Vector2(-0.97f, 0.02f));
+
                 obj.GetComponent<BoxCollider2D>().size = new Vector2(1.05f, 1.05f);
 
 

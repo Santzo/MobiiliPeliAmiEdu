@@ -46,7 +46,7 @@ public class ObjectCreator
 
         foreach (Node node in nodesToMove)
         {
-            Grid.grid.StartCoroutine(Grid.MoveNode(node.obj.transform, new Vector2(node.xPos, node.yPos)));
+            Grid.grid.StartCoroutine(Grid.MoveNode(node.obj.transform, new Vector3(node.xPos, node.yPos, node.obj.transform.position.z)));
         }
     }
 

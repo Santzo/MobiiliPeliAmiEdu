@@ -31,8 +31,9 @@ public class Node
     {
         if (obj != null)
         {
-            SpriteRenderer clr = obj.GetComponent<SpriteRenderer>();
-            clr.color = activate ? new Color(clr.color.r, clr.color.g, clr.color.b, 0.5f) : new Color(clr.color.r, clr.color.g, clr.color.b, 1f);
+            Animator anim = obj.GetComponent<Animator>();
+            if (activate)
+                anim.SetTrigger("Activate");
         }
     }
 
