@@ -9,11 +9,12 @@ public class GameManager : MonoBehaviour
    
     [HideInInspector] public float wsW;
     [HideInInspector] public float wsH;
+    [HideInInspector] public Vector2 scorePosition;
 
     public static GameManager instance;
     public Sprite backgroundPanel;
     public Sprite scoreBackground;
-    public Vector2 scorePosition;
+
 
     public PlayerController player;
 

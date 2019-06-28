@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class ObjectCreator
+public class ObjectManager
 {
 
     public static void ReplaceNodes(List<Node> replacedNodes)
     {
-        CalculateScore(replacedNodes); 
+        Grid.grid.StartCoroutine(Grid.BlowUpCoins(replacedNodes));
+        CalculateScore(replacedNodes);
+
+
         List<Node> nodesToMove = new List<Node>();
         replacedNodes = replacedNodes.OrderByDescending(o => o.y).ToList();
 
@@ -26,9 +29,6 @@ public class ObjectCreator
 
                     Grid.grid.nodes[node.x, y].obj = Grid.grid.nodes[node.x, y + 1].obj;
                     Grid.grid.nodes[node.x, y].name = Grid.grid.nodes[node.x, y + 1].name;
-
-                
-                    Grid.grid.nodes[node.x, y].UpdateColor();
                     Grid.grid.nodes[node.x, y].active = true;
                 }
                 else
@@ -41,7 +41,10 @@ public class ObjectCreator
         foreach (Node node in Grid.grid.nodes)
         {
             if (node.obj.transform.position.y != node.yPos && node.active)
+            {
+                node.obj.GetComponent<Animator>().SetTrigger("Fall");
                 nodesToMove.Add(node);
+            }
         }
 
         foreach (Node node in nodesToMove)
@@ -65,6 +68,10 @@ public class ObjectCreator
         GameObject text = ObjectPooler.op.Spawn("ScoreText", pos);
         text.GetComponent<Score>().text.text = "+" + score;
     }
+
+  
+
+
 
 
 }

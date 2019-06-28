@@ -46,6 +46,7 @@ public class PlayerController : MonoBehaviour
 
         if (Input.GetMouseButton(0))
             AddPieceToCombo();
+
         if (Input.GetKeyDown(KeyCode.Space))
             Score += 500;
     }
@@ -128,8 +129,6 @@ public class PlayerController : MonoBehaviour
                 if (nextInCombo > 1)
                 {
                     nodeCombo[i].active = false;
-                    nodeCombo[i].obj.SetActive(false);
-
                     nodesToReplace.Add(nodeCombo[i]);
                 }
                 nodeCombo[i] = null;
@@ -137,7 +136,7 @@ public class PlayerController : MonoBehaviour
         }
 
         if (nodesToReplace != null && nodesToReplace.Count > 1)
-            ObjectCreator.ReplaceNodes(nodesToReplace);
+            ObjectManager.ReplaceNodes(nodesToReplace);
 
         nextInCombo = lr.positionCount = 0;
     }

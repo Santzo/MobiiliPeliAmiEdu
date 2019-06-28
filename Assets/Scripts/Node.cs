@@ -13,6 +13,7 @@ public class Node
     public float yPos;
     public GameObject obj;
     public bool active;
+    private GameObject background;
 
     public Node(string name, float scoreValue, float[] comboMultiplier, int x, int y, float xPos, float yPos, GameObject obj, bool _active = true)
     {
@@ -33,13 +34,17 @@ public class Node
         {
             Animator anim = obj.GetComponent<Animator>();
             if (activate)
+            {
                 anim.SetTrigger("Activate");
+                background = ObjectPooler.op.Spawn("NodeBackground", new Vector2(xPos, yPos));
+                background.transform.localScale = Vector2.one * (Grid.grid.nodeSize - 0.05f);
+            }
+            else
+            {
+                background.SetActive(false);
+            }
         }
     }
 
-    public void UpdateColor()
-    {
-        SpriteRenderer clr = obj.GetComponent<SpriteRenderer>();
-    }
 
 }

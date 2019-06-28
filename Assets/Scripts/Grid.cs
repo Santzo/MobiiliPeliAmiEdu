@@ -35,12 +35,12 @@ public class Grid : MonoBehaviour
 
 
 
-    void DrawGrid()
+    void DrawGrid()                                     // Piirrettään pelikenttä
     {
-        CreateGridBackground();
+        CreateGridBackground();                         // Kutsutaan funktiota joka luo pelikentän taustan  
 
-        for (int x = 1; x <= gridX - 1; x++)
-        {
+        for (int x = 1; x <= gridX - 1; x++)            // Näillä kahdella for loopilla luodaan ruudukon viivat. Käyttää tällä hetkellä linerenderiä ihan yksinkertaisiin viivoihin
+        {                                               // Korvataan todennäköisesti jossain vaiheessa jollain viivaspriteillä.
             GameObject obj = new GameObject();
             obj.transform.parent = transform;
             LineRenderer lr = obj.AddComponent<LineRenderer>();
@@ -76,42 +76,41 @@ public class Grid : MonoBehaviour
 
     }
 
-    void InitializeField()
+    void InitializeField()                              // Luodaan kenttä, eli käydään nollasta maksi X ja y koordinaatteihin.
     {
         for (int x = 0; x < gridX; x++)
         {
             for (int y = 0; y < gridY; y++)
             {
-                float posX = (x * nodeSize + (nodeSize * 0.5f) - Mathf.Abs(startPos.x));
+                float posX = (x * nodeSize + (nodeSize * 0.5f) - Mathf.Abs(startPos.x));    // Lasketaan tyhjän ruudun kohta x-koordinaatista, kerrottaan nodeSizellä
                 float posY = (y * nodeSize + (nodeSize * 0.5f) - Mathf.Abs(startPos.y));
-                GameObject obj = ObjectPooler.op.Spawn("GamePiece", new Vector3(posX, posY, -1f));
-                obj.transform.localScale = Vector3.one * (nodeSize * 0.8f);
-                obj.transform.localScale = new Vector3(7.5f, 7.5f, 0.5f);
 
-                int piece = Random.Range(0, GamePieceManager.instance.pieces.Length);
-                GamePiece tempPiece = GamePieceManager.instance.pieces[piece].GetComponent<GamePiece>();
+                GameObject obj = ObjectPooler.op.Spawn("GamePiece", new Vector3(posX, posY, -2f));  // Luodaan uusi "GamePiece" käyttäen ObjectPooleria. Objectpoolerin tarkoitus siis tosiaan on se
+                int piece = Random.Range(0, GamePieceManager.instance.pieces.Length);               // että mitään objekteja ei ikinä oikeasti tuhottaisiin, vaan niitä kierrätetään aktivoimalla /
+                GamePiece tempPiece = GamePieceManager.instance.pieces[piece].GetComponent<GamePiece>();    // deaktivoimalla niitä.
+
                 obj.name = GamePieceManager.instance.pieces[piece].name;
+                obj.transform.localScale = new Vector3(obj.transform.localScale.x * nodeSize, obj.transform.localScale.y * nodeSize, 0.07f);
+                Animator anim = obj.GetComponent<Animator>();
+                anim.enabled = true;
+                
+
                 Renderer rend = obj.GetComponent<Renderer>();
                 MeshRenderer mesh = obj.GetComponent<MeshRenderer>();
                 rend.material = coinMaterial;
                 rend.material.SetTexture("_MainTex", tempPiece.sprite.texture);
-                Material[] mat = rend.materials;
-                mat[1] = rend.material;
-                rend.materials = mat;
-
-                obj.transform.localScale = new Vector3(obj.transform.localScale.x * nodeSize, obj.transform.localScale.y * nodeSize, obj.transform.localScale.z * nodeSize);
-                //obj.GetComponent<BoxCollider2D>().size = new Vector2(1.05f, 1.05f);
 
 
-                nodes[x, y] = new Node(obj.name, tempPiece.scoreValue, tempPiece.comboMultiplier, x, y, posX, posY, obj);
 
+                nodes[x, y] = new Node(obj.name, tempPiece.scoreValue, tempPiece.comboMultiplier, x, y, posX, posY, obj);   // Luodaan uusi Node-luokka x,y koordinaatteihin. Tämä luokka pitää sisällään
+                                                                                                                            // kaiken yhteen ruutuun kuuluvan tärkeän tiedon
 
             }
         }
     }
 
-    public static Node ReturnNodeInfo(Vector2 pos)
-    {
+    public static Node ReturnNodeInfo(Vector2 pos)                                                          // Tämä funktio palauttaa oikean x,y koordinaatin kun pelaaja painaa pelinappulan kohtaan
+    {                                                                                                       // Tätä siis kutsutaan PlayerController luokasta, kun pelaaja sormellaan osoitta tiettyä pelinappulaa
         float currentX = pos.x / grid.nodeSize + Mathf.Abs(grid.centerPoint.position.x);
         float currentY = pos.y / grid.nodeSize + Mathf.Abs(grid.centerPoint.position.y / grid.nodeSize);
 
@@ -125,16 +124,48 @@ public class Grid : MonoBehaviour
     }
 
 
-    public static IEnumerator MoveNode(Transform obj, Vector3 targetPos)
-    {
+    public static IEnumerator MoveNode(Transform obj, Vector3 targetPos)                    // Funktio jota käytetään pelinappuloihin jotka ovat tyhjän ruudun päällä. Tätä kutsutaan siis silloin
+    {                                                                                       // kun pelinappuloita tuhotaan kentältä.
         float moveSpeed = Random.Range(0.05f, 0.12f);
         while (obj.transform.position.y != targetPos.y)
         {
-            obj.transform.position = Vector2.MoveTowards(obj.transform.position, targetPos, moveSpeed);
+            obj.transform.position = Vector3.MoveTowards(obj.transform.position, targetPos, moveSpeed);
             yield return null;
         }
         obj.transform.position = targetPos;
         yield return null;
+    }
+
+    public static IEnumerator BlowUpCoins(List<Node> nodes)                                 // Räjäytetään kolikot, lisäämällä niihin satunnainen määrä voimaa
+    {
+        GameObject[] obj = new GameObject[nodes.Count];
+
+        for (int i = 0; i < nodes.Count; i++)
+        {
+            obj[i] = nodes[i].obj;
+            obj[i].GetComponent<Animator>().enabled = false;
+        }
+        foreach (GameObject _obj in obj)
+        {
+            Rigidbody rb = _obj.GetComponent<Rigidbody>();
+            rb.isKinematic = false;
+
+            Vector3 force = new Vector3(Random.Range(-300f, 300f), Random.Range(100f, 700f), Random.Range(-300f, 0f));
+            rb.AddForce(force);
+            rb.AddTorque(force);
+        }
+
+        yield return new WaitForSeconds(3f);
+
+        foreach (GameObject _obj in obj)
+        {
+            Rigidbody rb = _obj.GetComponent<Rigidbody>();
+            rb.isKinematic = true;
+            _obj.SetActive(false);
+        }
+
+
+        Debug.Log("Jaa");
     }
 
     private void CreateGridBackground()
