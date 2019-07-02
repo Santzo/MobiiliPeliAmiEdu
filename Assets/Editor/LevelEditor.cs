@@ -388,6 +388,7 @@ public class LevelEditor : EditorWindow
                 return;
         }
 
+        levelName = level;
         saveData = new SaveData();
         saveData.gridData = new List<string>();
         saveData.bonusPieceData = new List<string>();
