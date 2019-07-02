@@ -96,7 +96,6 @@ public class Grid : MonoBehaviour
                 
 
                 Renderer rend = obj.GetComponent<Renderer>();
-                MeshRenderer mesh = obj.GetComponent<MeshRenderer>();
                 rend.material = coinMaterial;
                 rend.material.SetTexture("_MainTex", tempPiece.sprite.texture);
 
@@ -163,9 +162,6 @@ public class Grid : MonoBehaviour
             rb.isKinematic = true;
             _obj.SetActive(false);
         }
-
-
-        Debug.Log("Jaa");
     }
 
     private void CreateGridBackground()

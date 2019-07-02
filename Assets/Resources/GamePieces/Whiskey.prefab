@@ -45,6 +45,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   scoreValue: 200
   sprite: {fileID: 21300000, guid: 15bcd502284aec943a64ab8a11edd389, type: 3}
+  levelEditorSprite: {fileID: 21300000, guid: 4dc353502ee256e47b58093b4f4d3f35, type: 3}
   color: {r: 1, g: 1, b: 1, a: 1}
   comboMultiplier:
   - 1
