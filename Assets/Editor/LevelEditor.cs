@@ -86,6 +86,7 @@ public class LevelEditor : EditorWindow
         Event e = Event.current;
         Handles.color = Color.black;
         GUI.Box(new Rect(halfNode, halfNode, GridX * nodeSize, GridY * nodeSize), "", style.box);
+
         for (int x = 1; x < GridX; x++)
         {
             Handles.DrawLine(new Vector2(x * nodeSize + halfNode, halfNode), new Vector2(x * nodeSize + halfNode, GridY * nodeSize + halfNode));
@@ -176,6 +177,7 @@ public class LevelEditor : EditorWindow
                 {
                     amountToDrop[i] = 0;
                 }
+                levelName = "";
             }
         }
 
@@ -325,7 +327,7 @@ public class LevelEditor : EditorWindow
 
     void SaveLevel()
     {
-        var file = Application.dataPath + "/Resources/Levels/" + levelName + ".lvl";
+        var file = Application.dataPath + "/Resources/Levels/" + levelName + ".txt";
         if (File.Exists(file))
         {
             if (!EditorUtility.DisplayDialog("Level already exists", "Are you sure you want to want to overwrite the save file?", "OK", "Cancel"))
@@ -366,7 +368,7 @@ public class LevelEditor : EditorWindow
         List<string> availableLevels = new List<string>();
         foreach (string fileName in fileEntries)
         {
-            if (fileName.EndsWith(".lvl"))
+            if (fileName.EndsWith(".txt"))
             {
                 string temp = fileName.Replace("\\", "/");
                 int index = temp.LastIndexOf("/");
@@ -381,7 +383,7 @@ public class LevelEditor : EditorWindow
 
     void LoadLevel(string level)
     {
-        string alevel = Application.dataPath + "/Resources/Levels/" + level + ".lvl";
+        string alevel = Application.dataPath + "/Resources/Levels/" + level + ".txt";
         if (File.Exists(alevel))
         {
             if (!EditorUtility.DisplayDialog("Load level?", "Are you sure you want to want to load " + level + " level? All unsaved changes will be deleted.", "OK", "Cancel"))
@@ -394,7 +396,17 @@ public class LevelEditor : EditorWindow
         saveData.bonusPieceData = new List<string>();
 
         var data = File.ReadAllText(alevel);
-        saveData = (SaveData)JsonUtility.FromJson(data, typeof(SaveData));
+
+        try
+        {
+            saveData = (SaveData)JsonUtility.FromJson(data, typeof(SaveData));
+        }
+        catch 
+        {
+            ShowMessage("Corrupted level file. ");
+            return;
+        }
+
         gridInfo = new EditorGrid.GridInfo[saveData.gridX, saveData.gridY];
         GridX = saveData.gridX;
         GridY = saveData.gridY;
@@ -434,6 +446,7 @@ public class LevelEditor : EditorWindow
                 
             }
         }
+        ShowMessage("Level loaded.");
 
 
     }

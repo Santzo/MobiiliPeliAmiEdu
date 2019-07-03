@@ -1,0 +1,1 @@
+{"gridX":4,"gridY":4,"gridData":["Dollar_Silver","Bull","Dollar_Silver","Sheriff","Dollar_Silver","Dollar_Silver","Sheriff","Dollar_Silver","Dollar_Silver","Sheriff","Sheriff","Sheriff","Sheriff","Dollar_Silver","Sheriff","Dollar_Silver"],"bonusPieceData":[]}

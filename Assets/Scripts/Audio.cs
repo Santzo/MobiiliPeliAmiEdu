@@ -34,7 +34,6 @@ public class Audio : MonoBehaviour
     public AudioMixer master;
     public static Audio ad;
     public List<Clip> clip;
-
     public Dict audioLib = new Dict();
 
     [HideInInspector] public float masterVolume;

@@ -25,12 +25,13 @@ public class Grid : MonoBehaviour
     void Start()
     {
         centerPoint = transform.GetChild(0);
-        nodes = new Node[gridX, gridY];
+
         nodeSize += (GameManager.instance.wsW * GameManager.instance.wsW) * 0.01f;
         if (GameManager.instance.wsW == 6f) nodeSize -= 0.03f;
-        startPos = new Vector2(-(gridX * 0.5f * nodeSize) - Mathf.Abs(centerPoint.position.x), -(gridY * 0.5f * nodeSize) - Mathf.Abs(centerPoint.position.y));
-        DrawGrid();
+
         InitializeField();
+        DrawGrid();
+
     }
 
 
@@ -78,6 +79,13 @@ public class Grid : MonoBehaviour
 
     void InitializeField()                              // Luodaan kenttä, eli käydään nollasta maksi X ja y koordinaatteihin.
     {
+        List<string> pieces = new List<string>();
+        List<string> bonusPieces = new List<string>();
+
+        GameManager.instance.LoadLevel("testiKolmem", ref gridX, ref gridY, ref pieces, ref bonusPieces);
+        nodes = new Node[gridX, gridY];
+        startPos = new Vector2(-(gridX * 0.5f * nodeSize) - Mathf.Abs(centerPoint.position.x), -(gridY * 0.5f * nodeSize) - Mathf.Abs(centerPoint.position.y));
+
         for (int x = 0; x < gridX; x++)
         {
             for (int y = 0; y < gridY; y++)
@@ -85,11 +93,21 @@ public class Grid : MonoBehaviour
                 float posX = (x * nodeSize + (nodeSize * 0.5f) - Mathf.Abs(startPos.x));    // Lasketaan tyhjän ruudun kohta x-koordinaatista, kerrottaan nodeSizellä
                 float posY = (y * nodeSize + (nodeSize * 0.5f) - Mathf.Abs(startPos.y));
 
+                string name = pieces[y + (x * gridY)];
+                GamePiece tempPiece = null;
+                foreach (var go in GameManager.instance.pieces)
+                {
+                    if (name == go.name)
+                    {
+                        tempPiece = go.GetComponent<GamePiece>();
+                        break;
+                    }
+                }
                 GameObject obj = ObjectPooler.op.Spawn("GamePiece", new Vector3(posX, posY, -2f));  // Luodaan uusi "GamePiece" käyttäen ObjectPooleria. Objectpoolerin tarkoitus siis tosiaan on se
-                int piece = Random.Range(0, GamePieceManager.instance.pieces.Length);               // että mitään objekteja ei ikinä oikeasti tuhottaisiin, vaan niitä kierrätetään aktivoimalla /
-                GamePiece tempPiece = GamePieceManager.instance.pieces[piece].GetComponent<GamePiece>();    // deaktivoimalla niitä.
+                                                                                                // että mitään objekteja ei ikinä oikeasti tuhottaisiin, vaan niitä kierrätetään aktivoimalla /
+                                                                                                     // deaktivoimalla niitä.
 
-                obj.name = GamePieceManager.instance.pieces[piece].name;
+                obj.name = name;
                 obj.transform.localScale = new Vector3(obj.transform.localScale.x * nodeSize, obj.transform.localScale.y * nodeSize, 0.07f);
                 Animator anim = obj.GetComponent<Animator>();
                 anim.enabled = true;

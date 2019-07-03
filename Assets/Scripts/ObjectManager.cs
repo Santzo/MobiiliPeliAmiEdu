@@ -29,6 +29,8 @@ public class ObjectManager
 
                     Grid.grid.nodes[node.x, y].obj = Grid.grid.nodes[node.x, y + 1].obj;
                     Grid.grid.nodes[node.x, y].name = Grid.grid.nodes[node.x, y + 1].name;
+                    Grid.grid.nodes[node.x, y].scoreValue = Grid.grid.nodes[node.x, y + 1].scoreValue;
+                    Grid.grid.nodes[node.x, y].comboMultiplier = Grid.grid.nodes[node.x, y + 1].comboMultiplier;
                     Grid.grid.nodes[node.x, y].active = true;
                 }
                 else
