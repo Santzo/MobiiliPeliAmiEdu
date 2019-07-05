@@ -26,7 +26,6 @@ public class GameManager : MonoBehaviour
     public static GameManager instance;
     public Sprite backgroundPanel;
     public Sprite scoreBackground;
-    public Object currentLevel;
 
 
    
@@ -62,7 +61,7 @@ public class GameManager : MonoBehaviour
         
     }
 
-    public void LoadLevel(string filename, ref int gridX, ref int gridY, ref List<string> activePieces, ref List<string> bonusPieces)
+    public void LoadLevel(string filename, out int gridX, out int gridY, out List<string> activePieces, out List<string> bonusPieces)
     {
         var saveData = new SaveData();
         saveData.gridData = new List<string>();

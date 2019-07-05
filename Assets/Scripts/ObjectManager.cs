@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -13,6 +14,7 @@ public class ObjectManager
 
 
         List<Node> nodesToMove = new List<Node>();
+        Grid.grid.newNodes = new List<Node>();
         replacedNodes = replacedNodes.OrderByDescending(o => o.y).ToList();
 
         foreach (Node node in replacedNodes)
@@ -47,7 +49,16 @@ public class ObjectManager
                 node.obj.GetComponent<Animator>().SetTrigger("Fall");
                 nodesToMove.Add(node);
             }
+            if (!node.active)
+            {
+                Grid.grid.newNodes.Add(node);
+            }
         }
+        Grid.grid.newNodesCount = nodesToMove.Count;
+        Grid.grid.nodeCounter = 0;
+
+        if (nodesToMove.Count == 0)
+            Grid.grid.CreateNewNodes();
 
         foreach (Node node in nodesToMove)
         {
@@ -70,6 +81,7 @@ public class ObjectManager
         GameObject text = ObjectPooler.op.Spawn("ScoreText", pos);
         text.GetComponent<Score>().text.text = "+" + score;
     }
+
 
   
 

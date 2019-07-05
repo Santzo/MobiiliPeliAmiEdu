@@ -1,6 +1,8 @@
 ﻿using System.Collections;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public class ObjectPooler : MonoBehaviour
 {
@@ -42,13 +44,16 @@ public class ObjectPooler : MonoBehaviour
     public GameObject Spawn(string tag, Vector3? position = null,  Quaternion? rotation = null, Transform parent = null, bool willSpawn = false)
     {
         GameObject obj = poolDictionary[tag].Dequeue();
+        if (tag != "GamePiece") poolDictionary[tag].Enqueue(obj);
         obj.transform.SetParent(parent);
         obj.SetActive(true);
         obj.transform.position = position ?? Vector3.zero;
-        poolDictionary[tag].Enqueue(obj);
-        return obj;
 
+        return obj;
     }
+
+
+   
 
    
 

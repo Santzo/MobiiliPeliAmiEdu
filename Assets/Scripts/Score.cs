@@ -24,7 +24,7 @@ public class Score : MonoBehaviour
 
     void Update()
     {
-        transform.position = new Vector2(transform.position.x + moveDirection * Time.deltaTime, transform.position.y + moveSpeed * Time.deltaTime);
+        transform.position = new Vector3(transform.position.x + moveDirection * Time.deltaTime, transform.position.y + moveSpeed * Time.deltaTime, -5f);
         text.color = new Color(text.color.r, text.color.g, text.color.b, text.color.a - fadeSpeed);
         if (text.color.a <= 0f)
             gameObject.SetActive(false);

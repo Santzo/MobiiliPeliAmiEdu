@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class Grid : MonoBehaviour
@@ -10,7 +11,12 @@ public class Grid : MonoBehaviour
     public Material coinMaterial;
     [Space]
     public Node[,] nodes;
+    public List<string> bonusPieces;
     public float nodeSize = 1f;
+
+    public List<Node> newNodes;
+    public int newNodesCount;
+    public int nodeCounter = 0;
 
     public static Vector2 startPos;
     public static Grid grid;
@@ -79,51 +85,61 @@ public class Grid : MonoBehaviour
 
     void InitializeField()                              // Luodaan kenttä, eli käydään nollasta maksi X ja y koordinaatteihin.
     {
-        List<string> pieces = new List<string>();
-        List<string> bonusPieces = new List<string>();
+        List<string> pieces = new List<string>();       // Lista johon haetaan ladattavan kentän nappulat
+        bonusPieces = new List<string>();      // Lista johon haetaan ladattavan kentän "bonusnappulat". Eli siis ne jotka putoaa tuhottujen nappuloiden tilalle.
 
-        GameManager.instance.LoadLevel("testiKolmem", ref gridX, ref gridY, ref pieces, ref bonusPieces);
-        nodes = new Node[gridX, gridY];
-        startPos = new Vector2(-(gridX * 0.5f * nodeSize) - Mathf.Abs(centerPoint.position.x), -(gridY * 0.5f * nodeSize) - Mathf.Abs(centerPoint.position.y));
+        GameManager.instance.LoadLevel("testiKolme", out gridX, out gridY, out pieces, out bonusPieces); // Ladataan kenttä GameManager-luokasta, tiedostonimellä.
+        nodes = new Node[gridX, gridY];                 // Asetetaan kentän kooksi tiedostosta luetuilla gridX + gridY arvoilla
 
+        // Asetaan kentän vasen alareuna laskemalla se gridin koolla (joka luonnollisesti puolitetaan) sekä kertomalla luku nodeSizellä, joka on siis yhden ruudun koko.
+        // Näin saadaan kenttä aina keskelle ruutua riippumatta sen koosta / nodeSizen koosta.
+        startPos = new Vector2(-(gridX * 0.5f * nodeSize) - Mathf.Abs(centerPoint.position.x), -(gridY * 0.5f * nodeSize) - Mathf.Abs(centerPoint.position.y)); 
+        
+                                
         for (int x = 0; x < gridX; x++)
         {
             for (int y = 0; y < gridY; y++)
             {
-                float posX = (x * nodeSize + (nodeSize * 0.5f) - Mathf.Abs(startPos.x));    // Lasketaan tyhjän ruudun kohta x-koordinaatista, kerrottaan nodeSizellä
-                float posY = (y * nodeSize + (nodeSize * 0.5f) - Mathf.Abs(startPos.y));
-
-                string name = pieces[y + (x * gridY)];
-                GamePiece tempPiece = null;
-                foreach (var go in GameManager.instance.pieces)
-                {
+                string name = pieces[y + (x * gridY)];                                      // Haetaan pelinappulan nimi tiedostosta saadulla listalla. Leveltiedostoon tallennettaan jokaiseen koordinaattiin
+                GamePiece tempPiece = null;                                                 // siis ainoastaan nappulan nimi, jota sitten verrataan Pelinappulat-arrayn objektien nimeen, jonka avulla
+                foreach (var go in GameManager.instance.pieces)                             // saadaan pelinappulan kaikki tiedot, esim. pistearvo, kombokertoimet, sprite yms. Pelinappulat on siis haettuna
+                {                                                                           // Resources/Gamepieces hakemistosta GameManager.instance.pieces arrayhin.
                     if (name == go.name)
                     {
                         tempPiece = go.GetComponent<GamePiece>();
                         break;
                     }
                 }
-                GameObject obj = ObjectPooler.op.Spawn("GamePiece", new Vector3(posX, posY, -2f));  // Luodaan uusi "GamePiece" käyttäen ObjectPooleria. Objectpoolerin tarkoitus siis tosiaan on se
-                                                                                                // että mitään objekteja ei ikinä oikeasti tuhottaisiin, vaan niitä kierrätetään aktivoimalla /
-                                                                                                     // deaktivoimalla niitä.
 
-                obj.name = name;
-                obj.transform.localScale = new Vector3(obj.transform.localScale.x * nodeSize, obj.transform.localScale.y * nodeSize, 0.07f);
-                Animator anim = obj.GetComponent<Animator>();
-                anim.enabled = true;
-                
-
-                Renderer rend = obj.GetComponent<Renderer>();
-                rend.material = coinMaterial;
-                rend.material.SetTexture("_MainTex", tempPiece.sprite.texture);
-
-
-
-                nodes[x, y] = new Node(obj.name, tempPiece.scoreValue, tempPiece.comboMultiplier, x, y, posX, posY, obj);   // Luodaan uusi Node-luokka x,y koordinaatteihin. Tämä luokka pitää sisällään
-                                                                                                                            // kaiken yhteen ruutuun kuuluvan tärkeän tiedon
-
+                CreateGamePiece(x, y, tempPiece);
+             
             }
         }
+
+
+    }
+
+    void CreateGamePiece(int x, int y, GamePiece piece)
+    {
+        float posX = (x * nodeSize + (nodeSize * 0.5f) - Mathf.Abs(startPos.x));    // Lasketaan tyhjän ruudun kohta x-koordinaatista, kerrottaan nodeSizellä
+        float posY = (y * nodeSize + (nodeSize * 0.5f) - Mathf.Abs(startPos.y));
+
+        GameObject obj = ObjectPooler.op.Spawn("GamePiece", new Vector3(posX, posY, -2f));      // Luodaan uusi "GamePiece" käyttäen ObjectPooleria. Objectpoolerin tarkoitus siis tosiaan on se
+        obj.name = piece.name;                                                                     // että mitään objekteja ei ikinä oikeasti tuhottaisiin, vaan niitä kierrätetään aktivoimalla /
+        obj.transform.localScale = new Vector3(1f * nodeSize, 1f * nodeSize, 0.07f);  // deaktivoimalla niitä.
+        obj.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
+        Animator anim = obj.GetComponent<Animator>();
+        anim.enabled = true;                                                                    // Varmistetaan, että kyseisen objektin animaattori on päällä.
+
+        Renderer rend = obj.GetComponent<Renderer>();
+        rend.material = coinMaterial;                                                           // Rendererin materiaali ja sprite asetaan oikeiksi.
+        rend.material.SetTexture("_MainTex", piece.sprite.texture);
+
+
+
+        grid.nodes[x, y] = new Node(obj.name, piece.scoreValue, piece.comboMultiplier, x, y, posX, posY, obj);   // Luodaan uusi Node-luokka x,y koordinaatteihin. Tämä luokka pitää sisällään
+        grid.nodes[x, y].active = true;                                                                         // kaiken yhteen ruutuun kuuluvan tärkeän tiedon
+
     }
 
     public static Node ReturnNodeInfo(Vector2 pos)                                                          // Tämä funktio palauttaa oikean x,y koordinaatin kun pelaaja painaa pelinappulan kohtaan
@@ -141,8 +157,8 @@ public class Grid : MonoBehaviour
     }
 
 
-    public static IEnumerator MoveNode(Transform obj, Vector3 targetPos)                    // Funktio jota käytetään pelinappuloihin jotka ovat tyhjän ruudun päällä. Tätä kutsutaan siis silloin
-    {                                                                                       // kun pelinappuloita tuhotaan kentältä.
+    public static IEnumerator MoveNode(Transform obj, Vector3 targetPos, bool newNode = false)  // Funktio jota käytetään pelinappuloihin jotka ovat tyhjän ruudun päällä. Tätä kutsutaan siis silloin
+    {                                                                                           // kun pelinappuloita tuhotaan kentältä.
         float moveSpeed = Random.Range(0.05f, 0.12f);
         while (obj.transform.position.y != targetPos.y)
         {
@@ -150,6 +166,14 @@ public class Grid : MonoBehaviour
             yield return null;
         }
         obj.transform.position = targetPos;
+
+        if (!newNode)
+        {
+            grid.nodeCounter++;
+            if (grid.nodeCounter >= grid.newNodesCount)
+                grid.CreateNewNodes();        
+        }
+
         yield return null;
     }
 
@@ -177,9 +201,40 @@ public class Grid : MonoBehaviour
         foreach (GameObject _obj in obj)
         {
             Rigidbody rb = _obj.GetComponent<Rigidbody>();
+            rb.velocity = new Vector3(0f, 0f, 0f);
             rb.isKinematic = true;
             _obj.SetActive(false);
+            _obj.DeActivate();
+            //ObjectPooler.op.poolDictionary["GamePiece"].Enqueue(_obj);
         }
+        yield return null;
+    }
+
+    public void CreateNewNodes()
+    {
+        if (bonusPieces.Count <= 0)
+            return;
+
+        int[] gridWidth = new int[gridX];
+        grid.newNodes = grid.newNodes.OrderByDescending(y => y.y).ToList();
+        foreach (var grid in grid.newNodes)
+        {
+            gridWidth[grid.y]++;
+            int index = Random.Range(0, bonusPieces.Count);
+            GamePiece tempPiece = null;
+            foreach (var bPiece in GameManager.instance.pieces)
+            {
+                if (bonusPieces[index] == bPiece.name)
+                {
+                    tempPiece = bPiece.GetComponent<GamePiece>();
+                    break;
+                }
+            }
+            Debug.Log(tempPiece);
+            CreateGamePiece(grid.x, grid.y, tempPiece);
+
+        }
+
     }
 
     private void CreateGridBackground()
