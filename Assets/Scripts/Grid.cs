@@ -31,10 +31,6 @@ public class Grid : MonoBehaviour
     void Start()
     {
         centerPoint = transform.GetChild(0);
-
-        nodeSize += (GameManager.instance.wsW * GameManager.instance.wsW) * 0.01f;
-        if (GameManager.instance.wsW == 6f) nodeSize -= 0.03f;
-
         InitializeField();
         DrawGrid();
 
@@ -88,8 +84,13 @@ public class Grid : MonoBehaviour
         List<string> pieces = new List<string>();       // Lista johon haetaan ladattavan kentän nappulat
         bonusPieces = new List<string>();      // Lista johon haetaan ladattavan kentän "bonusnappulat". Eli siis ne jotka putoaa tuhottujen nappuloiden tilalle.
 
-        GameManager.instance.LoadLevel("testiKolme", out gridX, out gridY, out pieces, out bonusPieces); // Ladataan kenttä GameManager-luokasta, tiedostonimellä.
-        nodes = new Node[gridX, gridY];                 // Asetetaan kentän kooksi tiedostosta luetuilla gridX + gridY arvoilla
+        GameManager.instance.LoadLevel("kuusi", out gridX, out gridY, out pieces, out bonusPieces); // Ladataan kenttä GameManager-luokasta, tiedostonimellä.
+        
+        nodeSize += (GameManager.instance.wsW * GameManager.instance.wsW) * 0.01f;
+        float multiplier = gridX > gridY ? 1f + (7 - gridY) * 0.1f : 1f + (7 - gridX) * 0.1f;
+        nodeSize *= multiplier;
+        if (GameManager.instance.wsW == 6f) nodeSize -= 0.03f;
+        nodes = new Node[gridX, gridY];                                                                  // Asetetaan kentän kooksi tiedostosta luetuilla gridX + gridY arvoilla
 
         // Asetaan kentän vasen alareuna laskemalla se gridin koolla (joka luonnollisesti puolitetaan) sekä kertomalla luku nodeSizellä, joka on siis yhden ruudun koko.
         // Näin saadaan kenttä aina keskelle ruutua riippumatta sen koosta / nodeSizen koosta.
